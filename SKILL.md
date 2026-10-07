@@ -37,6 +37,8 @@ description: 把 Markdown（计划 / 文档 / 报告）渲染成单文件审阅�
 "<技能目录>\bin\easyreview-render.exe" "<文档绝对路径>" --out "<输出目录>"
 ```
 
+**不需要手填助手参数**：渲染时会自动在 `127.0.0.1:7803` 上找本机助手，找不到就顺手拉起一个（`bin\easyreview-helper.exe`，与该 exe 同目录）——这样页面上的一键发回默认就能用。想关掉用 `--no-helper`。
+
 常用参数：
 
 | 参数 | 作用 |
@@ -44,8 +46,9 @@ description: 把 Markdown（计划 / 文档 / 报告）渲染成单文件审阅�
 | `--lang zh` / `--lang en` | 界面语言（默认 zh；en 产出 `<名字>.en.review.html`） |
 | `--out <目录>` | 输出目录（默认与 md 同目录） |
 | `--no-paths` | 不在页面里记录本机绝对路径（对外分享时用） |
-| `--helper http://127.0.0.1:7803` | 接本机助手：多一个「在文件夹中显示」，OpenCode 下还能一键发回 |
-| `--session ses_xxx` | 指定反馈发回哪个会话（OpenCode 下自动读 `OPENCODE_SESSION_ID`） |
+| `--helper <url>` | 手动指定助手地址（一般用不到，自动发现即可） |
+| `--no-helper` | 页面不做一键发回，只用复制 |
+| `--session ses_xxx` | 指定反馈发回哪个会话（OpenCode 下自动读 `OPENCODE_SESSION_ID`，一般不用填） |
 
 产出：`<名字>.review.html`（单文件）。
 

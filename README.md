@@ -9,8 +9,6 @@
 
 **一个技能包**：整个 `easyreview` 文件夹就是你那个 AI 的技能目录内容，里面自带工具（免安装、免联网）。
 
-> 本仓库只放文本（技能、文档、脚本）；三个二进制（约 380 MB）在 **Releases** 里，下载 `easyreview-v1.0b-win-x64.zip` 解开即得完整技能包。
-
 ```
 easyreview/
 ├─ SKILL.md              ← 你的 AI 读这个（操作手册：怎么渲染、怎么交付、怎么按反馈改）
@@ -62,8 +60,9 @@ easyreview\bin\easyreview-render.exe "D:\path\plan.en.md" --lang en
 
 审完怎么把反馈送回来：
 
-- **复制粘贴**（任何 AI 都能用）：页面右下「全局反馈」里点「复制反馈」→ 粘进对话；
-- **OpenCode 一键发回**：另开一个终端跑 `easyreview\cmd\easyreview-serve.cmd "<审阅页所在目录>"`，渲染时加 `--helper http://127.0.0.1:7803`，页面上的按钮就变成「审完了，发回给 AI 开始处理」（会直接进你的 OpenCode 会话）。
+- **OpenCode 一键发回（默认就绪）**：渲染时页面已经自动接好本机助手；点右栏底部「审完了，发回给 AI 开始处理」（两次确认）即可，反馈直接进你当前那个会话；
+- **复制粘贴**（任何 AI 都能用）：点「复制反馈」，粘进对话即可；
+- 手动起助手（一般不需要，渲染会自动拉起）：`easyreview\cmd\easyreview-serve.cmd "<审阅页所在目录>"`
 
 ## 页面上有什么
 
