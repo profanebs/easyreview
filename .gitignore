@@ -1,0 +1,7 @@
+# Binaries live in the GitHub Release, not in the repo (they are 80-175 MB each).
+bin/
+*.zip
+*.review.html
+node_modules/
+Thumbs.db
+.DS_Store
