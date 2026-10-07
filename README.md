@@ -1,4 +1,4 @@
-# easyreview v1.0b（公测版）
+# easyreview v1.0a（内测版）
 
 把 **AI 写好的 Markdown（计划 / 方案 / 报告）** 渲染成一张**可以批注的审阅页**：
 选中文字写批注、划掉已审任务、点选决策点、右栏底部写整体意见，最后一键把反馈送回给 AI。
@@ -22,7 +22,7 @@ easyreview/
 │  └─ serve-review.mjs   ← 助手源码（参考，可不理）
 ├─ examples/demo.md      ← 示例文档，拿来验证
 ├─ LICENSE-MIT / LICENSE-APACHE
-└─ VERSION               ← 1.0b
+└─ VERSION               ← 1.0a
 ```
 
 ## 装到你的 AI 上
@@ -71,7 +71,7 @@ easyreview\bin\easyreview-render.exe "D:\path\plan.en.md" --lang en
 - **右栏「批注」**：批注列表；顶部「接着咋整」是文档里的决策点（可点选项、可跳转）；底部「全局反馈」是整体意见 + 一键发回；
 - **选项菜单**：主题、字号（默认「大」）、文件位置。
 
-## 已知限制（公测版照实说）
+## 已知限制（内测版照实说）
 
 1. **自动发回只支持 OpenCode**；Codex / Kiro / Cursor 走「复制粘贴」，效果一样，只多一步手动；
 2. 自带二进制是 **Windows x64**；macOS / Linux 目前需要源码方式：clone 仓库后 `bun install && bun run --cwd apps/review build && bun run build:hook`，再用 `bun run easyreview <md>`；
