@@ -1,0 +1,37 @@
+{
+  "root": "D:\\work\\CodexWorkspace\\easyreview-source\\artifacts\\tests\\compiled-VMvotr",
+  "results": [
+    {
+      "agent": "codex",
+      "rendered": true,
+      "archived": true,
+      "readBack": true,
+      "delivered": false
+    },
+    {
+      "agent": "opencode",
+      "rendered": true,
+      "archived": true,
+      "readBack": true,
+      "delivered": false
+    },
+    {
+      "agent": "kiro",
+      "rendered": true,
+      "archived": true,
+      "readBack": true,
+      "delivered": false
+    },
+    {
+      "agent": "cursor",
+      "rendered": true,
+      "archived": true,
+      "readBack": true,
+      "delivered": false
+    }
+  ],
+  "projectInstall": true,
+  "idempotent": true,
+  "installedBinary": true,
+  "restart": true
+}

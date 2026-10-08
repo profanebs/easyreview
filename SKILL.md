@@ -1,6 +1,6 @@
 ---
 name: easyreview
-description: 让 AI 的交付物天生好懂、好审：按 plan/v1 把每件事写透（任务 `## T1:` + 这是啥/因为啥/会咋坏/咋修复 + 变更 + 验收 + 证据 + 决策点），再渲染成单文件审阅页让人批注、回流。当用户说"用 easyreview 审""渲染审阅页""我要审这个计划/方案""按审阅反馈改"时使用。自带免安装生成器，不需要 Bun、不需要仓库。
+description: 让 AI 的交付物天生好懂、好审：按 plan/v1 把每件事写透（任务 `## T1:` + 这是啥/因为啥/会咋坏/咋修复 + 变更 + 验收 + 证据 + 决策点），再渲染成单文件审阅页让人批注、回流。当用户说"用 easyreview 审""渲染审阅页""我要审这个计划/方案""按审阅反馈改"时使用。适用于 Codex、OpenCode、Kiro、Cursor；无需登录，反馈保存在项目内。
 ---
 
 # easyreview — 交付即说清楚
@@ -116,48 +116,44 @@ Recommended: <你推荐哪个，为什么>
 
 > **如果这份东西确实不是计划**（比如就是一份 README/说明文），那就在交付时说明白："这是普通文档，审阅页没有任务面板，只能整篇批注"——用一句话换掉他的困惑，也算把话说清楚。
 
-## 第二步：渲染成审阅页
+## 第二步：渲染和交付
 
-```bat
-"<技能目录>\bin\easyreview-render.exe" "<文档绝对路径>" --out "<输出目录>"
+在项目根目录运行（路径含空格时使用参数数组或正确引号）：
+
+```powershell
+& "./tools/easyreview/bin/easyreview.cmd" render "./review/方案.md" --out "./review" --agent codex
 ```
 
-- 助手参数**不用手填**：渲染时自动发现 `127.0.0.1:7803` 上的本机助手，没有就把身旁的 `bin\easyreview-helper.exe` 拉起来（页面的一键发回靠它）；想关掉用 `--no-helper`；
-- 其他参数：`--lang en`（只在明确要英文界面时用）、`--no-paths`（对外分享不留本机路径）、`--session ses_xxx`（一般自动读 `OPENCODE_SESSION_ID`）；
-- 渲染器只做一件事：把 Markdown 打进单文件页面。**它不会帮你补结构**——稿子写没写透，是第一步的事。
+按当前客户端把 `codex` 换成 `opencode`、`kiro`、`cursor` 或 `dsh`（dsh 目前只是标签：页面显示通用「AI」，它的技能目录和会话信号尚未确认）。环境身份可识别时可用 `auto`；未知环境使用通用 AI 标签，共用本地反馈箱。无须读取用户全局配置或登录服务。
 
-## 第三步：交付
+- 渲染器自动选择空闲本机端口、启动助手，并输出 HTML 路径和本地 URL。打开 HTTP URL 给用户审阅，不要仅交文件名。
+- `bin/easyreview.cmd` 启动时先探测包内 bun 能否写文件；不能（部分机器上包内 bun 读文件正常、写文件全部 EPERM）就自动改用 PATH 上能写的 bun。也可用环境变量 `EASYREVIEW_BUN` 指定。
+- 保留原版任务三态、四问卡、验收跳转、决策点、划线、批注、字号、聚焦、深浅主题、导入/导出和打印。
+- 用户审完点右栏「保存给当前客户端」，再回到对话说「读取 easyreview 反馈」。保存不会自动唤醒客户端，也不能冒充用户继续执行。
+- `--no-helper` 渲染离线单文件，反馈通过复制交回；`--no-paths` 去掉本机绝对路径并关闭助手，适合分享副本。
+- 助手重启后重新渲染，旧 token 页面可复制反馈。助手 URL、草稿和反馈目录不得上传到 GitHub。
+- OpenCode V2 已装原生插件时，调用 easyreview_render 渲染、easyreview_feedback 读取。两个工具使用同一页面与反馈协议，默认本地保存，不自动向会话发送提示。不可用时执行 CLI。
+- 旧版服务投递 `--delivery opencode` 是保留的显式入口，真实服务鉴权与投递未验证；只有用户已授权服务配置访问和会话投递时使用。
 
-- 把**完整绝对路径**写清楚；Windows 上可以直接 `start "" "<路径>"` 帮他打开；
-- 用一两句交代这页怎么看：选中文字批注 / 左栏「计划」划任务 / 右栏「接着咋整」答决策点 / 右栏底部「全局反馈」写整体意见 → 点「审完了，发回给 AI」；
-- 按钮取决于环境：OpenCode + 助手在跑 → 「发回」；否则 → 「复制反馈」（照样好用，粘回对话即可）。
+## 第三步：读取反馈继续修改
 
-## 第四步：反馈回来怎么改（纪律）
-
-反馈以 `【easyreview 审阅反馈】` 或 `# 计划反馈` 开头（用户粘贴，或 OpenCode 一键发回）：
-
-- **只改反馈点名的块**，没提到的部分一个字不动；
-- `已放行：T1、T2` = 审阅者认为这些任务已审完、可继续；**未表态 ≠ 通过**；
-- `要改：T3` = 按批注改；
-- `（第 N 行）`／引文只是定位，别顺手重写整段；
-- 决策点答复（`答复：…`）按用户选项执行，不要自己改选；
-- 改完给**最小变更摘要**；结构变了就重渲染一版让他复查。
-
-## 可选：会话模式
-
-```bat
-"<技能目录>\bin\easyreview.exe" annotate "<文件.md>"
+```powershell
+& "./tools/easyreview/bin/easyreview.cmd" feedback "./review/方案.review.html"
 ```
 
-起本地服务 + 打开浏览器，决定从命令行回到你手里。
+该命令按当前文档 SHA256 找到对应记录，拒绝混用其他文档或其他版本；输出保留定位批注、原始问题答复、任务三态和整体反馈的 JSON。源文档输出在其他目录时，请传审阅 HTML 路径。
 
-## 已知限制（照实说）
+1. 再计算当前源 Markdown 的 SHA256（CRLF/CR 统一 LF），核对记录 `docHash`。源文档修改后先说明版本已改变，不把旧结论当成新批准。
+2. 只修改用户点名的块，原定位、引文和回答都保留。未表态不等于放行。
+3. 测试记录或带【测试】的演练不构成用户批准。没有本轮记录时说明尚未收到，不编造答复。
+4. 返回最小变更摘要，必要时生成新的审阅页。GitHub 上传、发布、发消息等仍按用户授权边界执行。
 
-- 一键发回只在 **OpenCode + 本机助手在跑**时可用；其他 agent 走「复制反馈」，效果一样，多一步手动；
-- 自带二进制是 **Windows x64**；其他系统按 `references/BUILD.md` 自行编译；
-- 单页约 22 MB，首次打开稍慢；
-- 批注进度存在浏览器本地（cookie），不跨机器同步。
+## 原生接入
 
-## 版权
+用包内 `bin/easyreview.cmd install --project <项目目录> --agent auto` 安装项目技能。`auto` 检测项目已有客户端目录；没有标记时安装四端通用入口。`--agent all` 可显式安装全部。
 
-基于 [plannotator](https://github.com/backnotprop/plannotator)（MIT OR Apache-2.0）修改，见包内 `LICENSE-MIT`、`LICENSE-APACHE`。
+Codex / Cursor 共用 `.agents/skills/easyreview/SKILL.md`；OpenCode 使用 `.opencode/skills/easyreview/SKILL.md`；Kiro 使用 `.kiro/skills/easyreview/SKILL.md`。内容都指向项目内 `tools/easyreview`，可以随整个项目迁移。已有同名用户技能或插件会保留并报错。
+
+安装器检测到 OpenCode 1.x 时仅安装技能；2.x 或未发现程序时安装 `.opencode/plugins/easyreview/index.js`。`--opencode-version 2` 指定 V2，`--opencode-version 1` 指定技能模式。V2 适配基于官方 @opencode/plugin 2.x；未假定本机真实 V2 会话已经验证。
+
+客户端自定义 agent 若不自动加载技能，按 references/host-adapters.md 选择项目技能；不修改用户全局配置。

@@ -1,38 +1,49 @@
-# 构建说明（给想自己编译的人）
+# 构建说明（1.1.0 便携版）
 
-本项目的界面层是 [plannotator](https://github.com/backnotprop/plannotator) 的**修改分支**（fork，基线 `0.28.3`，MIT OR Apache-2.0）。改动包括：
+本项目的界面层是 [plannotator](https://github.com/backnotprop/plannotator) 的**修改分支**（fork，基线 `0.28.3`，MIT OR Apache-2.0）。
 
-- 中文界面 + 中文反馈导出（另一套 `--lang en` 与上游一致）；
-- 「计划」面板：任务三态、四问卡（这是啥 / 因为啥 / 会咋坏 / 咋修复 / 证据）、验收逐条可跳转、决策点；
-- 右栏「接着咋整」（决策点集中）与「全局反馈」（整体意见 + 一键发回）；
-- 字号整体缩放（含浮层坐标校准）；
-- 隐藏并移除了用不上的设置面（Vim / 钩子 / 集成四件套）与面板底部的复制分享条；
-- 免依赖生成器与打包脚本。
+## 分发形态（1.1.0 起变化）
 
-## 二进制怎么来的
+不再发布编译好的独立 exe（部分 Windows 机器会用应用控制拦截新编译的 exe），改为**便携包**：
 
 ```
-# 1) 构建界面（改 UI 后要重建两个 app）
-bun install
-bun run --cwd apps/review build
-bun run build:hook
-
-# 2) 免依赖生成器（把界面 HTML 内嵌进二进制：scripts/easyreview-render.ts 用的是
-#    Bun 文本导入 `with { type: "text" }`，编译时整页打进 exe）
-bun build scripts/easyreview-render.ts --compile --outfile bin/easyreview-render.exe
-
-# 3) 会话模式 CLI 与本机助手
-bun build apps/hook/server/index.ts --compile --no-compile-autoload-bunfig --outfile bin/easyreview.exe
-bun build serve-review.mjs --compile --outfile bin/easyreview-helper.exe
+easyreview-universal-1.1.0-win-x64/
+  bin/        官方 Bun 运行时 + 启动器 easyreview.cmd（选一个能写文件的 bun）
+  src/        脚本（render / install / feedback / stop / helper）+ 预编译单文件页面 HTML
+  references/ plan/v1 模板、四端接入说明、验证记录
+  examples/   示例文档
+  adapters/   OpenCode V2 原生插件
+  licenses/   上游双许可 + 字体 SIL OFL
+  manifest.sha256   逐文件校验值
 ```
 
-- 三个二进制都是 **Windows x64**（bun 的默认目标）；macOS / Linux 请在对应平台按上面步骤自行编译，或直接用 `bun run easyreview <md>`（需要仓库源码与 Bun）；
-- `easyreview-render.exe` 约 127 MB：Bun 运行时 + 内嵌的约 23 MB 单页界面，所以目标机器**不需要** Bun、不需要仓库、不需要联网。
+目标机器**不需要**安装 Bun/Node，不需要仓库，不需要联网。
 
-## 生成器做了什么事
+## 怎么用
 
-`scripts/easyreview-render.ts` 把 Markdown 压成 plannotator 的分享载荷（deflate-raw + base64url），并把「改 `location.hash` 的引导脚本」插在第一个 `<script` 之前——这样同一套界面能脱离服务器以单文件运行。注入点不能锚 `</head>`（打包后的 JS 里也有这个字符串）。
+```powershell
+& "<包>\bin\easyreview.cmd" render "<文档.md>" --out "<审阅目录>" --agent codex
+& "<包>\bin\easyreview.cmd" install --project "<项目目录>" --agent auto
+& "<包>\bin\easyreview.cmd" feedback "<审阅页.review.html>"
+& "<包>\bin\easyreview.cmd" stop "<审阅目录>"
+```
+
+`--agent` 可为 `auto | codex | opencode | kiro | cursor | dsh`；OpenCode 可加 `--session $env:OPENCODE_SESSION_ID --delivery opencode` 开启一键发回。
+
+## 包是怎么做出来的（维护者）
+
+1. **改界面**（fork 内）：`bun install && bun run --cwd apps/review build && bun run build:hook`；产物 `apps/hook/dist/index.html` 就是单文件页面（含内联字体、主题、小墨素材）。
+2. **组装便携包**：把 `scripts/easyreview-*.ts`、`serve-review.mjs`、`probe-write.mjs`、`easyreview-smoke.mjs` 放进 `src/scripts/`，页面放进 `src/apps/hook/dist/`，主题与小墨素材放 `src/theme/`、`src/xiaomo/`，官方 Bun 放 `bin/`。
+3. **写校验**：逐文件 SHA256 写进 `manifest.sha256`（排除 manifest 自身）。
+4. **冒烟**：`bin/bun.exe src/easyreview-smoke.mjs <包目录>` —— **用能写文件的 bun 当运行器**（见下）。
+5. **打包**：压缩整个目录为 `easyreview-universal-<版本>-win-x64.zip`，附同名 `.sha256`。
+
+## 已知环境限制（重要）
+
+- 某些 Windows 机器给**包内 bun** 限制了"写用户目录"（`%TEMP%` 等，表现为 `EPERM`）：`bin/easyreview.cmd` 启动前会用 `src/scripts/probe-write.mjs` 探测，失败就回退到 PATH 上能写的 bun；也可显式指定 `EASYREVIEW_BUN`。启动器还会尝试 `%APPDATA%\npm\node_modules\bun\bin\bun.exe`（npm 装的 bun 的真身，PATH 上的 `bun` 往往只是 `.ps1` 壳）。
+- 受限身份会**传给子进程**：包内 bun 拉起的 `opencode` 写不了自己的日志，导致一键发回的发现步骤失败（`service-not-found`）。换用不受限的 bun 即正常。
+- OpenCode V2 原生插件已通过宿主夹具验证，**未**在真实登录的 V2 会话中验证。
 
 ## 许可
 
-沿用上游双许可：`LICENSE-MIT` / `LICENSE-APACHE`。分发二进制时请一并保留这两个文件与上游署名。
+沿用上游双许可：`LICENSE-MIT` / `LICENSE-APACHE`；内置字体为 SIL OFL（见 `licenses/` 与 `THIRD-PARTY-NOTICES.md`）。分发二进制时请一并保留这些文件与上游署名。

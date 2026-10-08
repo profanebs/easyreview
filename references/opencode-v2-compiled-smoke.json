@@ -1,0 +1,16 @@
+{
+  "project": "D:\\work\\CodexWorkspace\\easyreview-source\\artifacts\\tests\\v2-native-QrV8Dp",
+  "officialSdk": "@opencode/plugin 2.0.14",
+  "fixture": true,
+  "liveV2Session": false,
+  "registered": true,
+  "actualBinaryRender": true,
+  "themeAndXiaomoEmbedded": true,
+  "localFeedbackRead": true,
+  "rawDecisionsPreserved": true,
+  "staleSourceRejected": true,
+  "cancellation": true,
+  "projectBoundary": true,
+  "unloaded": true,
+  "installedV1Detected": true
+}
