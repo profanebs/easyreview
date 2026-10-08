@@ -1,6 +1,6 @@
 # easyreview
 
-**下载**：最新版见 [Releases](https://github.com/profanebs/easyreview/releases/latest) —— 附件 `easyreview-universal-1.1.0-win-x64.zip`（约 57 MB，自带 Bun 运行时，目标机器无需安装 Bun / Node，无需联网）。包内 `manifest.sha256` 可逐文件核对。
+**下载**：最新版见 [Releases](https://github.com/profanebs/easyreview/releases/latest) —— 附件 `easyreview-universal-1.1.1-win-x64.zip`（约 57 MB，自带 Bun 运行时，目标机器无需安装 Bun / Node，无需联网）。包内 `manifest.sha256` 可逐文件核对。
 
 > 本仓库只放文档、技能与接入说明；**可运行的便携包在 Release 附件里**。构建方式见 `docs/BUILD.md`。
 
@@ -8,7 +8,7 @@
 
 # easyreview 宣纸 · 水墨泛用版
 
-Windows x64 本地便携启动包，版本 1.1.0。本轮保留已确认的设计，标签采用用户指定的东北话原句；工具条 👍 为“还行嗷！”，移除 Match existing patterns 默认标签。保留 easyreview 原来的三栏、工具条、任务三态、四问卡、批注、问答、导入/导出、打印和字号。浅色保留暖宣纸；深色重做为炭墨底与米灰文字，增加纸纤维、墨晕与标题笔触。宋体随页面内置，按钮仍用黑体，代码仍用等宽字体。
+Windows x64 本地便携启动包，版本 1.1.1。本轮保留已确认的设计，标签采用用户指定的东北话原句；工具条 👍 为“还行嗷！”，移除 Match existing patterns 默认标签。保留 easyreview 原来的三栏、工具条、任务三态、四问卡、批注、问答、导入/导出、打印和字号。浅色保留暖宣纸；深色重做为炭墨底与米灰文字，增加纸纤维、墨晕与标题笔触。宋体随页面内置，按钮仍用黑体，代码仍用等宽字体。
 
 已同步最新小墨：顶部「墨」开关、坐姿、跑动与挂边动画，首次默认开启，记住用户的关闭选择。最新批注或回复挂一只小墨；开关不重置批注编辑框。动画只受「墨」开关控制（本版已移除“减少动态效果”下的停用守卫）。
 
