@@ -1,13 +1,13 @@
-# 构建说明（1.1.0 便携版）
+# 构建说明（1.2 便携版）
 
 本项目的界面层是 [plannotator](https://github.com/backnotprop/plannotator) 的**修改分支**（fork，基线 `0.28.3`，MIT OR Apache-2.0）。
 
-## 分发形态（1.1.0 起变化）
+## 分发形态（1.1.0 起变化；当前 1.2）
 
 不再发布编译好的独立 exe（部分 Windows 机器会用应用控制拦截新编译的 exe），改为**便携包**：
 
 ```
-easyreview-universal-1.1.0-win-x64/
+easyreview-universal-1.2-win-x64/
   bin/        官方 Bun 运行时 + 启动器 easyreview.cmd（选一个能写文件的 bun）
   src/        脚本（render / install / feedback / stop / helper）+ 预编译单文件页面 HTML
   references/ plan/v1 模板、四端接入说明、验证记录
