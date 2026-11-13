@@ -15,6 +15,7 @@
 ```
 
 - `auto` 会看项目里已有的客户端目录；没有就装四端入口：Codex / Cursor → `.agents/skills/easyreview`，OpenCode → `.opencode/skills/easyreview`（V2 另有原生插件 `.opencode/plugins/easyreview/`），Kiro → `.kiro/skills/easyreview`。
+- 安装时会问你怎么称呼（写进 `.easyreview/user.json`）；不想交互就加 `--name <昵称>`，默认「用户」。
 - 只写这个项目，**不动你的全局配置**；程序放在 `<项目>\tools\easyreview`，可以随项目一起搬走。
 - 想显式装全部：`--agent all`；只装一个：`--agent codex|opencode|kiro|cursor`。
 

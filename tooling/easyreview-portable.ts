@@ -3,9 +3,10 @@ import { resolve, join, dirname, sep, basename } from 'node:path';
 import { createHash } from 'node:crypto';
 import { spawn, spawnSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
+import { createInterface } from 'node:readline';
 import { resolveAgent, agents } from './easyreview-host';
 
-export const VERSION = '1.2';
+export const VERSION = '1.2.1';
 const MANAGED = '<!-- easyreview portable adapter v1 -->';
 const inside = (root: string, path: string) => {
   const a = realpathSync(root).toLowerCase();
@@ -102,7 +103,7 @@ const defaultBundle = () => basename(process.execPath).toLowerCase() === 'easyre
 export async function main(argv: string[], bundle = defaultBundle()) {
   const [command, ...args] = argv;
   if (!command || ['help', '--help', '-h'].includes(command)) {
-    console.log(`easyreview ${VERSION} (Windows x64, portable)\nrender <file.md> [--out dir] [--agent auto|codex|opencode|kiro|cursor]\nserve <review-dir> [--agent opencode] [--delivery local|opencode]\nfeedback <file.review.html>\ninstall --project <dir> [--agent auto|all|codex|opencode|kiro|cursor] [--opencode-version auto|1|2]\nstop <review-dir>\ndetect\n无需登录；审阅页与反馈留在项目内。`); return;
+    console.log(`easyreview ${VERSION} (Windows x64, portable)\nrender <file.md> [--out dir] [--agent auto|codex|opencode|kiro|cursor]\nserve <review-dir> [--agent opencode] [--delivery local|opencode]\nfeedback <file.review.html>\ninstall --project <dir> [--agent auto|all|codex|opencode|kiro|cursor] [--opencode-version auto|1|2] [--name <nickname>]\nstop <review-dir>\ndetect\n无需登录；审阅页与反馈留在项目内。`); return;
   }
   if (['--version', 'version'].includes(command)) { console.log(VERSION); return; }
   if (command === 'detect') { console.log(resolveAgent()); return; }
@@ -169,13 +170,28 @@ export async function main(argv: string[], bundle = defaultBundle()) {
     console.log(JSON.stringify(readFeedback(args[0]), null, 2)); return;
   }
   if (command === 'install') {
-    let project: string | undefined; let agent = 'auto'; let opencodeVersion = 'auto';
+    let project: string | undefined; let agent = 'auto'; let opencodeVersion = 'auto'; let userName = '';
     for (let i = 0; i < args.length; i++) {
-      if (!['--project', '--agent', '--opencode-version'].includes(args[i]) || !args[i + 1] || args[i + 1].startsWith('--')) throw new Error('install --project <dir> [--agent auto|all|codex|opencode|kiro|cursor] [--opencode-version auto|1|2]');
-      if (args[i] === '--project') project = args[++i]; else if (args[i] === '--agent') agent = args[++i]; else opencodeVersion = args[++i];
+      if (!['--project', '--agent', '--opencode-version', '--name'].includes(args[i]) || !args[i + 1] || args[i + 1].startsWith('--')) throw new Error('install --project <dir> [--agent auto|all|codex|opencode|kiro|cursor] [--opencode-version auto|1|2] [--name <nickname>]');
+      if (args[i] === '--project') project = args[++i];
+      else if (args[i] === '--agent') agent = args[++i];
+      else if (args[i] === '--opencode-version') opencodeVersion = args[++i];
+      else userName = args[++i];
     }
     if (!project) throw new Error('请明确指定 --project，不修改用户的全局配置');
-    console.log(JSON.stringify(installAdapters(bundle, project, agent, opencodeVersion), null, 2)); return;
+    if (!userName && process.stdin.isTTY) {
+      const rl = createInterface({ input: process.stdin, output: process.stdout });
+      const answer = (await rl.question('How should review pages address you? (default: user) ')).trim();
+      rl.close();
+      userName = answer || 'user';
+    }
+    const result = installAdapters(bundle, project, agent, opencodeVersion);
+    if (userName) {
+      const userDir = join(resolve(project), '.easyreview');
+      mkdirSync(userDir, { recursive: true });
+      writeFileSync(join(userDir, 'user.json'), JSON.stringify({ name: userName }, null, 2) + '\n', 'utf8');
+    }
+    console.log(JSON.stringify({ ...result, user: userName || null }, null, 2)); return;
   }
   throw new Error(`未知命令：${command}`);
 }
